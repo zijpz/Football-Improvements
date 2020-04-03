@@ -3,7 +3,6 @@ from tkinter import *
 def login_user():
     #screen1 = Toplevel(screen)
     #screen1.title("Login")
-
     username_info = username.get()
     password_info = password.get()
 
