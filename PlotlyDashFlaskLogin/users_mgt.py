@@ -51,3 +51,4 @@ def show_users():
 
     conn.close()
 show_users()
+#add_user('test', 'test', 'test@test.com')
