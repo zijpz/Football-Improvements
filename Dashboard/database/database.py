@@ -1,14 +1,42 @@
 import pandas as pd
+from pandas import DataFrame
 import sqlalchemy as sql
 import MySQLdb
+import MySQLdb.cursors
+import mysql.connector
 import yaml
 import os.path
+
 
 # get configurations from yaml file
 #cfg = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), os.pardir, 'config.yaml')))
 #sql_engine = sql.create_engine(cfg['mysql'])
-sql_engine = sql.create_engine('mysql://root:bowenkedinskie@localhost:3306/forward football')
+sql_engine = sql.create_engine('mysql://root:bowenkedinskie@localhost:3306/forwardfootball')
 
+db=mysql.connector.connect(host = "localhost", user = "root", passwd="bowenkedinskie", db= "forwardfootball")
+# cursorclass=MySQLdb.cursors.DictCursor
+cursor=db.cursor()
+
+username = 'bob'
+passwrd = "Jan"
+
+def call_procedure(sql_engine,function_name, params):
+    connection = sql_engine.raw_connection()
+    try:
+        cursor = connection.cursor()
+        cursor.callproc(function_name, params)
+        for row in cursor.stored_results(): 
+            results = row.fetchall()
+            colNamesList=row.description
+ 
+        colNames=[i[0] for i in colNamesList]
+        result_dicts = [dict(zip(colNames, row)) for row in results]
+        result_df=pd.DataFrame(result_dicts)
+        cursor.close()
+        #connection.commit()
+        return result_df
+    finally:
+        connection.close()
 
 ######## Helper Functions ########
 # you can ignore these
@@ -32,17 +60,29 @@ def match_metrics_data(match_df):
 
 ######## MySQL QUERIES ########
 def teams_and_matches(team='AFCU13-7', engine=sql_engine):  
-    """Selects all possible matchId where team is found in home(team1) or away(team2)
-    Args:
-        team: teamId
-        engine: sql-engine configuration
+    #"""Selects all possible matchId where team is found in home(team1) or away(team2)
+    #Args:
+    #    team: teamId
+    #    engine: sql-engine configuration
     
-    Returns:
-        A list of possible matchIds for a selected team
-    """  
-    query = "SELECT matchId from clean_match WHERE team1='" +  team + "' OR team2='" + team + "'"
-    df = pd.read_sql_query(query, engine)
-    #print(df['matchId'].to_list())
+    #Returns: 
+    #    A list of possible matchIds for a selected team
+    #"""
+    #query = "SELECT matchId from clean_match WHERE team1='" +  team + "' OR team2='" + team + "'"
+   
+    args = (team, username, passwrd)
+    cursor.callproc("teams_and_matches", args)
+    
+    for row in cursor.stored_results():
+        results = row.fetchall()
+        colNamesList=row.description
+
+    colNames=[i[0] for i in colNamesList]
+
+    results_dicts = [dict(zip(colNames, row))for row in results]
+
+    df = pd.DataFrame(results_dicts)
+
     return df['matchId'].to_list()
 
 def matches_and_players(matchId='61614647-8504-4983-8976-143056946FF0', engine=sql_engine):    
@@ -57,6 +97,7 @@ def matches_and_players(matchId='61614647-8504-4983-8976-143056946FF0', engine=s
     query = "SELECT playerId from clean_match_teammates_statistics WHERE matchId='" + matchId + "'"
     df = pd.read_sql_query(query, engine)
     return df['playerId'].to_list()
+    
 
 # yield possible options for team selections by club
 def team_selection_club(engine=sql_engine):
@@ -67,11 +108,33 @@ def team_selection_club(engine=sql_engine):
     Returns:
         A list of possible teamIds
     """  
-    select_team1 = 'SELECT team1 FROM clean_match'
-    team1_df = pd.read_sql_query(select_team1, engine)
+    #select_team1 = 'SELECT team1 FROM clean_match'
+    args = (username, passwrd)
+    cursor.callproc("team_selection_club1", args)
+    
+    for row in cursor.stored_results():
+        results = row.fetchall()
+        colNamesList=row.description
 
-    select_team2 = 'SELECT team2 FROM clean_match'
-    team2_df = pd.read_sql_query(select_team2, engine)
+    colNames=[i[0] for i in colNamesList]
+
+    results_dicts = [dict(zip(colNames, row))for row in results]
+
+    team1_df = pd.DataFrame(results_dicts)
+
+    #select_team2 = 'SELECT team2 FROM clean_match'
+    args = (username, passwrd)
+    cursor.callproc("team_selection_club2", args)
+    
+    for row in cursor.stored_results():
+        results = row.fetchall()
+        colNamesList=row.description
+
+    colNames=[i[0] for i in colNamesList]
+
+    results_dicts = [dict(zip(colNames, row))for row in results]
+
+    team2_df = pd.DataFrame(results_dicts)
 
     unique_team1 = team1_df['team1'].unique()
     unique_team2 = team2_df['team2'].unique()
@@ -89,8 +152,19 @@ def select_match_data(matchId, engine=sql_engine):
     Returns:
         A pandas DataFrame with full match data
     """  
-    select_match = "SELECT * FROM clean_match_teammates_statistics WHERE matchId='" + matchId + "'"
-    match_df = pd.read_sql_query(select_match, engine)
+    #select_match = "SELECT * FROM clean_match_teammates_statistics WHERE matchId='" + matchId + "'"
+    args = (matchId, username, passwrd)
+    cursor.callproc("select_match_data", args)
+    
+    for row in cursor.stored_results():
+        results = row.fetchall()
+        colNamesList=row.description
+
+    colNames=[i[0] for i in colNamesList]
+
+    results_dicts = [dict(zip(colNames, row))for row in results]
+
+    match_df = pd.DataFrame(results_dicts)
     return match_df
 
 
@@ -104,32 +178,75 @@ def possible_games_player(playerId, engine=sql_engine):
     Returns:
         A list of possible matches for a selected player
     """  
-    select_games = "SELECT playerId, matchId FROM clean_match_teammates_statistics WHERE playerId=" + playerId
-    games_df = pd.read_sql_query(select_games, engine)
+    #select_games = "SELECT playerId, matchId FROM clean_match_teammates_statistics WHERE playerId=" + playerId
+    args = (playerId, username, passwrd)
+    cursor.callproc("possible_games_player", args)
+    
+    for row in cursor.stored_results():
+        results = row.fetchall()
+        colNamesList=row.description
+
+    colNames=[i[0] for i in colNamesList]
+
+    results_dicts = [dict(zip(colNames, row))for row in results]
+
+    games_df = pd.DataFrame(results_dicts)
     unique_games = games_df['matchId'].unique()
     return unique_games
 
 # return a dataframe that has averages for all metrics
 def quadrant_plot_data_club(engine=sql_engine):
-    select_match_and_team = "SELECT matchId, team1, team2 FROM clean_match"
-    complete_df = pd.read_sql_query(select_match_and_team, engine)
+    #select_match_and_team = "SELECT matchId, team1, team2 FROM clean_match"
+    args = (username, passwrd)
+    cursor.callproc("quadrant_plot_data_club", args)
+    
+    for row in cursor.stored_results():
+        results = row.fetchall()
+        colNamesList=row.description
+
+    colNames=[i[0] for i in colNamesList]
+
+    results_dicts = [dict(zip(colNames, row))for row in results]
+
+    complete_df = pd.DataFrame(results_dicts)
     all_matches = complete_df['matchId'].to_list()
 
     return all_matches
 
 # query possible dates for matches for a particular team
 def time_range_matches(team, engine=sql_engine):
-    select_times = "SELECT Match_date, matchId FROM clean_match WHERE team1='" +  team + "' OR team2='" + team + "'"
-    time_df = pd.read_sql_query(select_times, engine)
+    #select_times = "SELECT Match_date, matchId FROM clean_match WHERE team1='" +  team + "' OR team2='" + team + "'"
+    args = (team, username, passwrd)
+    cursor.callproc("time_range_matches", args)
+    
+    for row in cursor.stored_results():
+        results = row.fetchall()
+        colNamesList=row.description
+
+    colNames=[i[0] for i in colNamesList]
+
+    results_dicts = [dict(zip(colNames, row))for row in results]
+
+    time_df = pd.DataFrame(results_dicts)
     dates = time_df['Match_date'].unique()
-    #matches = time_df['matchId']
     return dates
 
 # return latest matches from clean_match for the performance screenshot for a club
 def latest_matches_per_team(team, engine=sql_engine):
-    latest_matches = "SELECT Match_date, match_time, matchID FROM clean_match WHERE team1='" +  team + "' OR team2='" + team + "'" \
-                     + " ORDER BY match_time DESC"
-    latest_df = pd.read_sql_query(latest_matches, engine)
+    #latest_matches = "SELECT Match_date, match_time, matchID FROM clean_match WHERE team1='" +  team + "' OR team2='" + team + "'" \
+                     #+ " ORDER BY match_time DESC"
+    args = (team, username, passwrd)
+    cursor.callproc("latest_matches_per_team", args)
+    
+    for row in cursor.stored_results():
+        results = row.fetchall()
+        colNamesList=row.description
+
+    colNames=[i[0] for i in colNamesList]
+
+    results_dicts = [dict(zip(colNames, row))for row in results]
+
+    latest_df = pd.DataFrame(results_dicts)
     set_of_matches = latest_df['matchID'].to_list()
     set_of_matches = ["'" + m for m in set_of_matches]
     set_of_matches = [m + "'" for m in set_of_matches]
@@ -180,3 +297,4 @@ def latest_matches_per_player(playerId, matchIds, engine=sql_engine):
 
     return external_df, norm_internal_df, ball_df, final_display_df
 
+ 
