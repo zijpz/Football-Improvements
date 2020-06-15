@@ -7,7 +7,6 @@ import mysql.connector
 import yaml
 import os.path
 
-
 # get configurations from yaml file
 #cfg = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), os.pardir, 'config.yaml')))
 #sql_engine = sql.create_engine(cfg['mysql'])
