@@ -16,8 +16,8 @@ db=mysql.connector.connect(host = "localhost", user = "root", passwd="bowenkedin
 # cursorclass=MySQLdb.cursors.DictCursor
 cursor=db.cursor()
 
-username = 'bob'
-passwrd = "Jan"
+user = 'bob'
+password = "Jan"
 
 # Call procedure
 def call_procedure(sql_engine,function_name, params):
@@ -74,7 +74,7 @@ def teams_and_matches(team='AFCU13-7', engine=sql_engine):
     #  
     params=[team,user,password]
     function_name='X'
-    df = call_procedure(engine,functionname,params )
+    df = call_procedure(engine,function_name,params )
    
     return df['matchId'].to_list()
 
@@ -92,8 +92,8 @@ def matches_and_players(matchId='61614647-8504-4983-8976-143056946FF0', engine=s
     #  
     params=[matchId,user,password]
     function_name='X'
-    df = call_procedure(engine,functionname,params )
-   return df['playerId'].to_list()
+    df = call_procedure(engine,function_name,params )
+    return df['playerId'].to_list()
     
 
 # yield possible options for team selections by club
@@ -108,12 +108,12 @@ def team_selection_club(engine=sql_engine):
     #select_team1 = 'SELECT team1 FROM clean_match' 
     params=[user,password]
     function_name='X'
-    df = call_procedure(engine,functionname,params )
+    team1_df = call_procedure(engine,function_name,params )
    
     #select_team2 = 'SELECT team2 FROM clean_match'
     params=[user,password]
     function_name='X'
-    df = call_procedure(engine,functionname,params )
+    team2_df = call_procedure(engine,function_name,params )
 
     unique_team1 = team1_df['team1'].unique()
     unique_team2 = team2_df['team2'].unique()
@@ -134,7 +134,7 @@ def select_match_data(matchId, engine=sql_engine):
     #select_match = "SELECT * FROM clean_match_teammates_statistics WHERE matchId='" + matchId + "'"
     params=[matchId,user,password]
     function_name='X'
-    df = call_procedure(engine,functionname,params )
+    df = call_procedure(engine,function_name,params )
    
     return df
     
@@ -152,7 +152,7 @@ def possible_games_player(playerId, engine=sql_engine):
    
     params=[playerId,user,password]
     function_name='X'
-    df = call_procedure(engine,functionname,params )
+    df = call_procedure(engine,function_name,params )
    
     unique_games = df['matchId'].unique()
     return unique_games
@@ -160,9 +160,9 @@ def possible_games_player(playerId, engine=sql_engine):
 # return a dataframe that has averages for all metrics
 def quadrant_plot_data_club(engine=sql_engine):
     #select_match_and_team = "SELECT matchId, team1, team2 FROM clean_match"
-      params=[user,password]
+    params=[user,password]
     function_name='X'
-    df = call_procedure(engine,functionname,params )
+    df = call_procedure(engine,function_name,params )
    
     return df['matchId'].to_list()
 
@@ -171,7 +171,7 @@ def time_range_matches(team, engine=sql_engine):
     #select_times = "SELECT Match_date, matchId FROM clean_match WHERE team1='" +  team + "' OR team2='" + team + "'"
     params=[team,user,password]
     function_name='X'
-    df = call_procedure(engine,functionname,params )
+    df = call_procedure(engine,function_name,params )
    
     dates = df['Match_date'].unique()
     return dates
@@ -182,7 +182,7 @@ def latest_matches_per_team(team, engine=sql_engine):
                      #+ " ORDER BY match_time DESC"
     params=[team,user,password]
     function_name='X'
-    df = call_procedure(engine,functionname,params )
+    latest_df = call_procedure(engine,function_name,params )
    
     set_of_matches = latest_df['matchID'].to_list()
     set_of_matches = ["'" + m for m in set_of_matches]
@@ -194,9 +194,9 @@ def latest_matches_per_team(team, engine=sql_engine):
 # return the data for a player over the last five matches and split them up into three dfs
 # for internal, external and ball data
 def latest_matches_per_player(playerId, matchIds, engine=sql_engine):
-    params=[playerId,matchId,user,password]
+    params=[playerId,matchIds,user,password]
     function_name='X'
-    latest_df = call_procedure(engine,functionname,params )
+    latest_df = call_procedure(engine,function_name,params )
    
 
     # mean_df
