@@ -1,0 +1,2 @@
+[database]
+con = mysql+mysqlconnector://root:admin@localhost:3306/forwardfootball
