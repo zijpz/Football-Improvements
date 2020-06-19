@@ -2,14 +2,28 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
+# # def get_header():
+# #     header = html.Div([
+
+# #         html.Div([
+# #             html.H1(
+# #                 'Forward Football Dashboard')
+# #         ], className="twelve columns padded"),       
+
+# #     ])
+# #     return header
+# # ,className="row gs-header gs-text-header")
 def get_header():
-    header = html.Div([
-
+    header = html.Div(children=[
         html.Div([
-            html.H1(
-                'Forward Football Dashboard')
-        ], className="twelve columns padded"),       
-
+            html.H1('Forward Football Dashboard')
+        ], className="twelve columns padded"),
+        html.Div([
+            #html.H1(className='links', children=[
+                html.Div('TEST',id='user-name', className='link'),
+                html.Div(id='logout', className='link')
+            #])
+        ])
     ])
     return header
 # ,className="row gs-header gs-text-header")
@@ -25,5 +39,3 @@ def get_menu():
 
     ], className="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm") 
     return menu    
-
-# 

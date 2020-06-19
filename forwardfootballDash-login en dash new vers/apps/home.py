@@ -4,11 +4,10 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 from apps import player, club, coach, commonmodules
 
-from server import app
+from app import app
 
 
 layout = html.Div([
-    commonmodules.get_header(),
     # dbc.Row(dbc.Col(html.Div('Forward Football Dashboard'))),
     commonmodules.get_menu(),
     html.Br(),

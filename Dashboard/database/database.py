@@ -10,9 +10,9 @@ import os.path
 # get configurations from yaml file
 #cfg = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), os.pardir, 'config.yaml')))
 #sql_engine = sql.create_engine(cfg['mysql'])
-sql_engine = sql.create_engine('mysql://root:bowenkedinskie@localhost:3306/forwardfootball')
+sql_engine = sql.create_engine('mysql://root:admin@localhost:3306/forwardfootball')
 
-db=mysql.connector.connect(host = "localhost", user = "root", passwd="bowenkedinskie", db= "forwardfootball")
+db=mysql.connector.connect(host = "localhost", user = "root", passwd="admin", db= "forwardfootball")
 # cursorclass=MySQLdb.cursors.DictCursor
 cursor=db.cursor()
 

@@ -7,7 +7,7 @@ from apps import commonmodules
 import pandas as pd
 import numpy as np
 
-from server import app
+from app import app
 
 from database import database as db
 
@@ -35,7 +35,6 @@ available_metrics = db.match_metrics_data(match_df)
 
 
 layout = html.Div([
-    commonmodules.get_header(),
     commonmodules.get_menu(), 
     html.H3('Club'),
 
